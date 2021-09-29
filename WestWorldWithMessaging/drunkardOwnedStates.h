@@ -13,26 +13,6 @@
 class drunkard;
 struct Telegram;
 
-// drunk enough to cause a quarrel 
-class gettinOutOfToilet : public State<drunkard>
-{
-private:
-	gettinOutOfToilet() {};
-	gettinOutOfToilet(const gettinOutOfToilet&);
-	gettinOutOfToilet& operator=(const gettinOutOfToilet&);
-
-public:
-	// to get the pointer to the singleton
-	static gettinOutOfToilet* Instance();
-
-	virtual void Enter(drunkard* drunkard);
-
-	virtual void Execute(drunkard* drunkard);
-
-	virtual void Exit(drunkard* drunkard);
-
-	virtual bool OnMessage(drunkard* agent, const Telegram& msg);
-};
 
 //chill drunkard
 class GoToTheBarAndDrink : public State<drunkard> {
@@ -60,7 +40,6 @@ class GoAtHomeToRest : public State<drunkard> {
 private:
 	GoAtHomeToRest() {};
 
-	//copy ctor and assignment should be private
 	GoAtHomeToRest(const GoAtHomeToRest&);
 	GoAtHomeToRest& operator=(const GoAtHomeToRest&);
 
@@ -96,6 +75,26 @@ public:
 
 };
 
+
+class gettinOutOfToilet : public State<drunkard>
+{
+private:
+	gettinOutOfToilet() {};
+	gettinOutOfToilet(const gettinOutOfToilet&);
+	gettinOutOfToilet& operator=(const gettinOutOfToilet&);
+
+public:
+	// to get the pointer to the singleton
+	static gettinOutOfToilet* Instance();
+
+	virtual void Enter(drunkard* drunkard);
+
+	virtual void Execute(drunkard* drunkard);
+
+	virtual void Exit(drunkard* drunkard);
+
+	virtual bool OnMessage(drunkard* agent, const Telegram& msg);
+};
 
 class altercation : public State<drunkard> {
 

@@ -5,7 +5,6 @@ using std::cout;
 void drunkard::Update()
 {
 	SetTextColor(FOREGROUND_BLUE| FOREGROUND_INTENSITY);
-	// TODO see if something needed
 	m_pStateMachine->Update();
 }
 

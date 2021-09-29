@@ -344,6 +344,7 @@ bool sitAtTheBar::OnMessage(Miner* pMiner, const Telegram& msg)
 {
     switch (msg.Msg)
     {
+    // if the miner is sat at the bar and the drunkard get out of the toilets he informs him that his stool is taken
     case Msg_gettingOutOfToilet:
 
         cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
@@ -358,7 +359,7 @@ bool sitAtTheBar::OnMessage(Miner* pMiner, const Telegram& msg)
             NO_ADDITIONAL_INFO);
 
         return true;
-
+    // starts the altercation
     case Msg_altercation:
         cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
             << " at time: " << Clock->GetCurrentTime();
@@ -416,7 +417,7 @@ void altercationWithDrunkard::Exit(Miner* pMiner)
 
 bool altercationWithDrunkard::OnMessage(Miner* pMiner, const Telegram& msg)
 {
-    // decide to let the seat and leaves home
+    // decide to let the seat and leaves to the mine or home if he needs to rest
     switch (msg.Msg)
     {
     case Msg_getmad:

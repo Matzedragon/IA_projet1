@@ -18,62 +18,7 @@ extern std::ofstream os;
 #define cout os
 #endif
 
-gettinOutOfToilet* gettinOutOfToilet::Instance()
-{
-    static gettinOutOfToilet instance;
 
-    return &instance;
-}
-
-
-void gettinOutOfToilet::Enter(drunkard* pDrunkard)
-{
-    if (pDrunkard->Location() != saloon) {
-
-        pDrunkard->ChangeLocation(saloon);
-
-        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
-            pDrunkard->ID(),    //ID of sender
-            ent_Miner_Bob,      //ID of recipient
-            Msg_gettingOutOfToilet,  //the message
-            NO_ADDITIONAL_INFO);
-    }
-}
-void gettinOutOfToilet::Execute(drunkard* pDrunkard)
-{
-    cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "Back to drinking !";
-    pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
-}
-
-void gettinOutOfToilet::Exit(drunkard* pDrunkard)
-{
-}
-
-bool gettinOutOfToilet::OnMessage(drunkard* pDrunkard, const Telegram& msg)
-{
-    // if when getting out, miner sends back a message with tookstool, then we start an altercation
-    switch (msg.Msg)
-    {
-    case Msg_tookStool:
-
-        cout << "\nMessage handled by " << GetNameOfEntity(pDrunkard->ID())
-            << " at time: " << Clock->GetCurrentTime();
-
-        SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-
-        pDrunkard->GetFSM()->ChangeState(altercation::Instance());
-
-        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
-            pDrunkard->ID(),        //ID of sender
-            ent_Miner_Bob,            //ID of recipient
-            Msg_altercation,   //the message
-            NO_ADDITIONAL_INFO);
-
-        return true;
-    }//end switch
-    return false;
-}
-    
 
 /************************************************************/
 /************************************************************/
@@ -152,7 +97,8 @@ bool GoToTheBarAndDrink::OnMessage(drunkard* pDrunkard, const Telegram& msg)
 }
 
 /************************************************************/
-/************************************************************/
+/*The drunkard reached his maximum alcohol level and decides*/
+/* to go home so it goes down                               */
 /************************************************************/
 
 /* Methods for GoAtHomeToRest */
@@ -199,7 +145,15 @@ bool GoAtHomeToRest::OnMessage(drunkard* agent, const Telegram& msg)
     return false;
 }
 
+/****************************************************************/
+/* This state is called when the miner enters the bar to force  */
+/* the altercation situation or just when the variable m_pee    */
+/* reaches needToilet                                           */
+/* It informs the miner with a message that the drunkard is     */
+/* leaving to the toilets so the miner can take his seat        */
+/****************************************************************/
 
+/* Methods for gettinOutOfToilet*/
 
 GoToToilet* GoToToilet::Instance()
 {
@@ -257,7 +211,78 @@ bool GoToToilet::OnMessage(drunkard* pDrunkard, const Telegram& msg)
     return false;
 }
 
+/****************************************************************/
+/* When the drunkard gets out of the toilets, sends a           */
+/* message to the miner, if he answers that he took it's        */
+/* seat then the drunkard goes into the state altercation       */
+/* else he just continues to drink (state : GoToTheBarAndDrink )*/
+/****************************************************************/
 
+/* Methods for gettinOutOfToilet*/
+gettinOutOfToilet* gettinOutOfToilet::Instance()
+{
+    static gettinOutOfToilet instance;
+
+    return &instance;
+}
+
+
+void gettinOutOfToilet::Enter(drunkard* pDrunkard)
+{
+    if (pDrunkard->Location() != saloon) {
+
+        pDrunkard->ChangeLocation(saloon);
+
+        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+            pDrunkard->ID(),    //ID of sender
+            ent_Miner_Bob,      //ID of recipient
+            Msg_gettingOutOfToilet,  //the message
+            NO_ADDITIONAL_INFO);
+    }
+}
+void gettinOutOfToilet::Execute(drunkard* pDrunkard)
+{
+    // The miner didn't take his seats while he was gone so he just sits back at the bar
+    cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "Back to drinking !";
+    pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
+}
+
+void gettinOutOfToilet::Exit(drunkard* pDrunkard)
+{
+}
+
+bool gettinOutOfToilet::OnMessage(drunkard* pDrunkard, const Telegram& msg)
+{
+    // if when getting out, miner sends back a message with tookstool, then we start an altercation
+    switch (msg.Msg)
+    {
+    case Msg_tookStool:
+
+        cout << "\nMessage handled by " << GetNameOfEntity(pDrunkard->ID())
+            << " at time: " << Clock->GetCurrentTime();
+
+        SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+
+        pDrunkard->GetFSM()->ChangeState(altercation::Instance());
+
+        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+            pDrunkard->ID(),        //ID of sender
+            ent_Miner_Bob,            //ID of recipient
+            Msg_altercation,   //the message
+            NO_ADDITIONAL_INFO);
+
+        return true;
+    }//end switch
+    return false;
+}
+
+/****************************************************************/
+/* If the miner decides to getmad the drunkard will react with  */
+/* an angry message, else he'll offer to buy the miner a drink  */
+/* state changes to GoToTheBarAndDrink either way               */
+/****************************************************************/
+
+/* Methods for altercation*/
 altercation* altercation::Instance()
 {
     static altercation instance;
