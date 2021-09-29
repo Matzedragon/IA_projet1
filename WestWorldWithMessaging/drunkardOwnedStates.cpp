@@ -177,7 +177,6 @@ void GoToToilet::Enter(drunkard* pDrunkard)
 
 void GoToToilet::Execute(drunkard* pDrunkard)
 {
-
     cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "*peeing*... ";
     pDrunkard->resetPee();
     pDrunkard->GetFSM()->ChangeState(gettinOutOfToilet::Instance());
@@ -298,7 +297,7 @@ void altercation::Enter(drunkard* pDrunkard)
 
 void altercation::Execute(drunkard* pDrunkard)
 {
-
+    pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
 }
 
 void altercation::Exit(drunkard* pDrunkard)
@@ -320,12 +319,10 @@ bool altercation::OnMessage(drunkard* pDrunkard, const Telegram& msg)
             ent_Miner_Bob,      //ID of recipient
             Msg_getmad,  //the message
             NO_ADDITIONAL_INFO);
-        pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
         return true;
     case Msg_giveBackSeat:
         SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
         cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "No worries mate let me get something to drink for you";
-        pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
         return true;
     }
     return false;
