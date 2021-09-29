@@ -13,7 +13,7 @@
 #include <string>
 #include <cassert>
 #include <iostream>
-
+#include <time.h>
 #include "Locations.h"
 #include "BaseGameEntity.h"
 #include "misc/ConsoleUtils.h"
@@ -32,7 +32,6 @@ const int needToilet = 10;
 class drunkard : public BaseGameEntity
 {
 private:
-
 	// an instance of the state machine class
 	StateMachine<drunkard>* m_pStateMachine;
 
@@ -51,6 +50,7 @@ public:
         BaseGameEntity(id)
 
     {
+        srand(time(0));
         //set up state machine
         m_pStateMachine = new StateMachine<drunkard>(this);
 

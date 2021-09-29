@@ -11,7 +11,9 @@ enum message_type
   Msg_gettingOutOfToilet,
   Msg_tookStool,
   Msg_altercation,
-  Msg_enteringBar
+  Msg_enteringBar,
+  Msg_getmad,
+  Msg_giveBackSeat
 };
 
 
@@ -45,6 +47,12 @@ inline std::string MsgToStr(int msg)
 
   case 6:
       return "MinerEnteringBar";
+
+  case 7: 
+      return "GetsMad";
+
+  case 8:
+      return "GiveBackDrunkardsSeat";
 
   default:
 

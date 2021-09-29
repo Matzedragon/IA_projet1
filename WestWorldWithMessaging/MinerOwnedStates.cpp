@@ -7,7 +7,7 @@
 #include "MessageTypes.h"
 #include "Time/CrudeTimer.h"
 #include "EntityNames.h"
-
+#include <misc/utils.h>
 #include <iostream>
 using std::cout;
 
@@ -17,6 +17,7 @@ using std::cout;
 extern std::ofstream os;
 #define cout os
 #endif
+
 
 
 //------------------------------------------------------------------------methods for EnterMineAndDigForNugget
@@ -235,12 +236,13 @@ void QuenchThirst::Enter(Miner* pMiner)
         ent_Jean,            //ID of recipient
         Msg_enteringBar,   //the message
         NO_ADDITIONAL_INFO);
+    pMiner->BuyAndDrinkAWhiskey(); // not the drunkard buying him to drink
   }
 }
 
 void QuenchThirst::Execute(Miner* pMiner)
 {
-  pMiner->BuyAndDrinkAWhiskey();
+    pMiner->DrunkardBuyDrink(); // if the drunkard buys him something.
 
   cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "That's mighty fine sippin' liquer";
 
@@ -250,7 +252,6 @@ void QuenchThirst::Execute(Miner* pMiner)
 
 void QuenchThirst::Exit(Miner* pMiner)
 { 
-    //TODO leaving bar 
 }
 
 
@@ -381,7 +382,27 @@ altercationWithDrunkard* altercationWithDrunkard::Instance()
 
 void altercationWithDrunkard::Enter(Miner* pMiner)
 {
-
+    srand(time(0));
+    //1 chance outta 2 that he gets angry when the drunkard tells him it was his stool
+    SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+    bool getmad = RandInt(0, 1);
+    if (getmad) {
+        cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "this seat was free what are you saying";
+        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+            pMiner->ID(),        //ID of sender
+            ent_Jean,            //ID of recipient
+            Msg_getmad,   //the message
+            NO_ADDITIONAL_INFO);
+    }
+    else {
+        cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Sorry my guy here's your seat.";
+        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+            pMiner->ID(),        //ID of sender
+            ent_Jean,            //ID of recipient
+            Msg_giveBackSeat,   //the message
+            NO_ADDITIONAL_INFO);
+        pMiner->GetFSM()->ChangeState(QuenchThirst::Instance());
+    }
 }
 
 void altercationWithDrunkard::Execute(Miner* pMiner)
@@ -390,11 +411,26 @@ void altercationWithDrunkard::Execute(Miner* pMiner)
 }
 
 void altercationWithDrunkard::Exit(Miner* pMiner)
-{
-
+{   
 }
 
 bool altercationWithDrunkard::OnMessage(Miner* pMiner, const Telegram& msg)
 {
+    // decide to let the seat and leaves home
+    switch (msg.Msg)
+    {
+    case Msg_getmad:
+        SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+        cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "If you say so, i intended to leave anyway";
+        // fatigued goes home
+        if (pMiner->Fatigued() || pMiner->Wealth() >= ComfortLevel)
+        {
+            pMiner->GetFSM()->ChangeState(GoHomeAndSleepTilRested::Instance());
+        }
+        else {
+            pMiner->GetFSM()->ChangeState(EnterMineAndDigForNugget::Instance());
+        }
+        return true;
+    }
     return false;
 }

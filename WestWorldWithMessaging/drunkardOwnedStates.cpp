@@ -51,6 +51,7 @@ void gettinOutOfToilet::Exit(drunkard* pDrunkard)
 
 bool gettinOutOfToilet::OnMessage(drunkard* pDrunkard, const Telegram& msg)
 {
+    // if when getting out, miner sends back a message with tookstool, then we start an altercation
     switch (msg.Msg)
     {
     case Msg_tookStool:
@@ -60,13 +61,14 @@ bool gettinOutOfToilet::OnMessage(drunkard* pDrunkard, const Telegram& msg)
 
         SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 
+        pDrunkard->GetFSM()->ChangeState(altercation::Instance());
+
         Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
             pDrunkard->ID(),        //ID of sender
             ent_Miner_Bob,            //ID of recipient
             Msg_altercation,   //the message
             NO_ADDITIONAL_INFO);
 
-        pDrunkard->GetFSM()->ChangeState(altercation::Instance());
         return true;
     }//end switch
     return false;
@@ -167,7 +169,7 @@ void GoAtHomeToRest::Enter(drunkard* pDrunkard)
     /* if not at his house, change location*/
     if (pDrunkard->Location() != d_house)
     {
-        cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "Going to sleep... *throw up*";
+        cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "Going back home to sleep... *throw up*";
 
         pDrunkard->ChangeLocation(d_house);
     }
@@ -267,7 +269,6 @@ void altercation::Enter(drunkard* pDrunkard)
 {
 
     cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "That's my place mate";
-    // send message 1
 }
 
 void altercation::Execute(drunkard* pDrunkard)
@@ -280,8 +281,27 @@ void altercation::Exit(drunkard* pDrunkard)
 
 }
 
-bool altercation::OnMessage(drunkard* agent, const Telegram& msg)
+bool altercation::OnMessage(drunkard* pDrunkard, const Telegram& msg)
 {
-
+    
+    switch (msg.Msg)
+    {
+    case Msg_getmad:
+        SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "you saw me getting out the toilets 5 seconds ago you wanna fight or what";
+        cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "That's my drink aswell in front of ya";
+        Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+            pDrunkard->ID(),    //ID of sender
+            ent_Miner_Bob,      //ID of recipient
+            Msg_getmad,  //the message
+            NO_ADDITIONAL_INFO);
+        pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
+        return true;
+    case Msg_giveBackSeat:
+        SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        cout << "\n" << GetNameOfEntity(pDrunkard->ID()) << ": " << "No worries mate let me get something to drink for you";
+        pDrunkard->GetFSM()->ChangeState(GoToTheBarAndDrink::Instance());
+        return true;
+    }
     return false;
 }
