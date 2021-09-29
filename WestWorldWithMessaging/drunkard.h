@@ -22,9 +22,9 @@
 
 //the alcohol level to be considered drunk to have an argument
 const float AlcoholLevelForDrunk = 0.6;
-// before drunkard goes home ( if time to implement )
+// before drunkard goes home
 const float MaxAlcoholBeforeSick = 2.0;
-// the level of alcohol increase by 0.2 each time the drunkard drinks a beer.
+// the drunkard's alcohol level incrase by 0.2 for each beer.
 const float AmountAlcoholPerBeer = 0.2;
 
 const int needToilet = 10;
@@ -54,7 +54,7 @@ public:
         //set up state machine
         m_pStateMachine = new StateMachine<drunkard>(this);
 
-        //TODO the different states (querelle, trkl )
+        //default state is the drunkard going to to bar.
         m_pStateMachine->SetCurrentState(GoToTheBarAndDrink::Instance());
 
     }
